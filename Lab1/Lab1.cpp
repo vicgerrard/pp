@@ -6,6 +6,9 @@
 #include "amp_math.h"
 #include <ctime>
 #include <iostream>
+ 
+#define ATTEMPTS 2
+
 using namespace concurrency;
 using namespace std;
 
@@ -14,9 +17,9 @@ double sumVectorsAMP(int n, vector<double> a, vector<double> b, vector<double> c
 double sumVectorsOMP(int n, vector<double> a, vector<double> b, vector<double> c);
 double sumVectorsSEQ(int n, vector<double> a, vector<double> b, vector<double> c);
 
-double mulMatrixOnConstantAMP(int n, vector<double> a, vector<double> b);
-double mulMatrixOnConstantOMP(int n, vector<double> a, vector<double> b);
-double mulMatrixOnConstantSEQ(int n, vector<double> a, vector<double> b);
+double mulMatrixOnConstantAMP(int n, vector<double>& a, vector<double>& b);
+double mulMatrixOnConstantOMP(int n, vector<double>& a, vector<double>& b);
+double mulMatrixOnConstantSEQ(int n, vector<double>& a, vector<double>& b);
 
 double matrixTransposeAMP(int n, vector<double> a, vector<double> b);
 double matrixTransposeOMP(int n, vector<double> a, vector<double> b);
@@ -30,7 +33,7 @@ void sumVectors();
 void mulMatrixOnConstant();
 void matrixTranspose();
 void mulMatricies();
-vector<double> generateVector(int n, bool leaveEmpty = false);
+vector<double> generateVector(long long n, bool leaveEmpty = false);
 
 int main()
 {
@@ -45,12 +48,12 @@ int main()
 void mulMatricies()
 {
 	wcout << "\nMul matricies\n";
-	int sizes[] = {
-		100,
+	long long sizes[] = {
 		500,
-		1000
+		1000,
+		2500
 	};
-	for (int size : sizes)
+	for (long long size : sizes)
 	{
 		wcout << "Size " << size << "x" << size << "\n";
 		auto matrixA = generateVector(size * size);
@@ -58,87 +61,89 @@ void mulMatricies()
 		auto matrixResult = generateVector(size * size, true);
 		double elapsedTime = 0;
 
-		for (int i = 0;i < 5;i++)
+		for (int i = 0;i < ATTEMPTS;i++)
 			elapsedTime += mulMatriciesAMP(size, matrixA, matrixB, matrixResult);
-		wcout << "AMP = " << elapsedTime / 5 << " ms\n";
+		wcout << "AMP = " << elapsedTime / ATTEMPTS << " ms\n";
 		elapsedTime = 0;
 
-		for (int i = 0;i < 5;i++)
-			elapsedTime = mulMatriciesOMP(size, matrixA, matrixB, matrixResult);
-		wcout << "OMP = " << elapsedTime / 5 << " ms\n";
+		for (int i = 0;i < ATTEMPTS;i++)
+			elapsedTime += mulMatriciesOMP(size, matrixA, matrixB, matrixResult);
+		wcout << "OMP = " << elapsedTime / ATTEMPTS << " ms\n";
 		elapsedTime = 0;
 
-		for (int i = 0;i < 5;i++)
-			elapsedTime = mulMatriciesSEQ(size, matrixA, matrixB, matrixResult);
-		wcout << "SEQ = " << elapsedTime / 5 << " ms\n";
+		for (int i = 0;i < ATTEMPTS;i++)
+			elapsedTime += mulMatriciesSEQ(size, matrixA, matrixB, matrixResult);
+		wcout << "SEQ = " << elapsedTime / ATTEMPTS << " ms\n";
 	}
 }
 void matrixTranspose()
 {
 	wcout << "\nMatrix transpose\n";
-	int sizes[] = {
-		100,
+	long long sizes[] = {
 		500,
-		1000
+		1000,
+		2500
 	};
-	for (int size : sizes)
+	for (long long size : sizes)
 	{
 		wcout << "Size " << size << "x" << size << "\n";
 		auto matrixA = generateVector(size * size);
 		auto matrixResult = generateVector(size * size, true);
 		double elapsedTime = 0;
 
-		for (int i = 0;i < 5;i++)
+		for (int i = 0;i < ATTEMPTS;i++)
 			elapsedTime += matrixTransposeAMP(size, matrixA, matrixResult);
-		wcout << "AMP = " << elapsedTime / 5 << " ms\n";
+		wcout << "AMP = " << elapsedTime / ATTEMPTS << " ms\n";
 		elapsedTime = 0;
 
-		for (int i = 0;i < 5;i++)
-			elapsedTime = matrixTransposeOMP(size, matrixA, matrixResult);
-		wcout << "OMP = " << elapsedTime / 5 << " ms\n";
+		for (int i = 0;i < ATTEMPTS;i++)
+			elapsedTime += matrixTransposeOMP(size, matrixA, matrixResult);
+		wcout << "OMP = " << elapsedTime / ATTEMPTS << " ms\n";
 		elapsedTime = 0;
 
-		for (int i = 0;i < 5;i++)
-			elapsedTime = matrixTransposeSEQ(size, matrixA, matrixResult);
-		wcout << "SEQ = " << elapsedTime / 5 << " ms\n";
+		for (int i = 0;i < ATTEMPTS;i++)
+			elapsedTime += matrixTransposeSEQ(size, matrixA, matrixResult);
+		wcout << "SEQ = " << elapsedTime / ATTEMPTS << " ms\n";
 	}
 }
 void mulMatrixOnConstant()
 {
 	wcout << "\nMul matrix on constant\n";
-	int sizes[] = {
-		100,
+	long long sizes[] = {
 		500,
-		1000
+		1000,
+		2500
 	};
-	for(int size : sizes)
+	for(long long size : sizes)
 	{
 		wcout << "Size " << size << "x" << size << "\n";
 		auto matrixA = generateVector(size * size);
 		auto matrixResult = generateVector(size * size, true);
 		double elapsedTime = 0;
-
-		for (int i = 0;i < 5;i++)
+		for (int i = 0;i < ATTEMPTS;i++)
 			elapsedTime += mulMatrixOnConstantAMP(size,  matrixA, matrixResult);
-		wcout << "AMP = " << elapsedTime / 5 << " ms\n";
+		wcout << "AMP = " << elapsedTime / ATTEMPTS << " ms\n";
 		elapsedTime = 0;
 
-		for (int i = 0;i < 5;i++)
-			elapsedTime = mulMatrixOnConstantOMP(size, matrixA, matrixResult);
-		wcout << "OMP = " << elapsedTime / 5 << " ms\n";
+		for (int i = 0;i < ATTEMPTS;i++)
+			elapsedTime += mulMatrixOnConstantOMP(size, matrixA, matrixResult);
+		wcout << "OMP = " << elapsedTime / ATTEMPTS << " ms\n";
 		elapsedTime = 0;
 
-		for (int i = 0;i < 5;i++)
-			elapsedTime = mulMatrixOnConstantSEQ(size, matrixA, matrixResult);
-		wcout << "SEQ = " << elapsedTime / 5 << " ms\n";
+		for (int i = 0;i < ATTEMPTS;i++)
+			elapsedTime += mulMatrixOnConstantSEQ(size, matrixA, matrixResult);
+		wcout << "SEQ = " << elapsedTime / ATTEMPTS << " ms\n";
 	}
 }
-
+	
 void sumVectors()
 {
 	wcout << "\nSum of 2 vectors\n";
-	int nSizes[] = {1000000, 5000000, 10000000 };
-	for (int n : nSizes)
+	long long nSizes[] = {
+		1000000,
+		5000000, 
+		10000000};
+	for (long long n : nSizes)
 	{
 		wcout << "N = " << n << "\n";
 		auto vectorA = generateVector(n);
@@ -146,19 +151,19 @@ void sumVectors()
 		auto vectorResult = generateVector(n, true);
 		double elapsedTime = 0;
 
-		for (int i = 0;i < 5;i++)
+		for (int i = 0;i < ATTEMPTS;i++)
 			elapsedTime += sumVectorsAMP(n, vectorA, vectorB, vectorResult);
-		wcout << "AMP = " << elapsedTime / 5 << " ms\n";
+		wcout << "AMP = " << elapsedTime / ATTEMPTS << " ms\n";
 		elapsedTime = 0;
 
-		for (int i = 0;i < 5;i++)
-			elapsedTime = sumVectorsOMP(n, vectorA, vectorB, vectorResult);
-		wcout << "OMP = " << elapsedTime / 5 << " ms\n";
+		for (int i = 0;i < ATTEMPTS;i++)
+			elapsedTime += sumVectorsOMP(n, vectorA, vectorB, vectorResult);
+		wcout << "OMP = " << elapsedTime / ATTEMPTS << " ms\n";
 		elapsedTime = 0;
 
-		for (int i = 0;i < 5;i++)
-			elapsedTime = sumVectorsSEQ(n, vectorA, vectorB, vectorResult);
-		wcout << "SEQ = " << elapsedTime / 5 << " ms\n";
+		for (int i = 0;i < ATTEMPTS;i++)
+			elapsedTime += sumVectorsSEQ(n, vectorA, vectorB, vectorResult);
+		wcout << "SEQ = " << elapsedTime / ATTEMPTS << " ms\n";
 	}
 }
 
@@ -213,7 +218,7 @@ double sumVectorsSEQ(int n, vector<double> a, vector<double> b, vector<double> c
 
 
 #define CONSTANT 7
-double mulMatrixOnConstantAMP(int n, vector<double> a, vector<double> b)
+double mulMatrixOnConstantAMP(int n, vector<double>& a, vector<double>& b)
 {
 	array_view<const double, 2> ob1(n, n, a);
 	array_view<double, 2> mul(n, n, b);
@@ -228,13 +233,13 @@ double mulMatrixOnConstantAMP(int n, vector<double> a, vector<double> b)
 	return end - start;
 }
 
-double mulMatrixOnConstantOMP(int n, vector<double> a, vector<double> b)
+double mulMatrixOnConstantOMP(int n, vector<double>& a, vector<double>& b)
 {
 	auto start = clock();
     #pragma omp parallel for
-	for (int i = 0; i < n; ++i)
+	for (long long i = 0; i < n; ++i)
 	{
-		for (int j = 0; j < n; ++j)
+		for (long long j = 0; j < n; ++j)
 		{
 			b[i*n + j] = a[i*n + j] * CONSTANT;
 		}
@@ -243,12 +248,12 @@ double mulMatrixOnConstantOMP(int n, vector<double> a, vector<double> b)
 	return end - start;
 }
 
-double mulMatrixOnConstantSEQ(int n, vector<double> a, vector<double> b)
+double mulMatrixOnConstantSEQ(int n, vector<double>& a, vector<double>& b)
 {
 	auto start = clock();
-	for (int i = 0; i < n; ++i)
+	for (long long i = 0; i < n; ++i)
 	{
-		for (int j = 0; j < n; ++j)
+		for (long long j = 0; j < n; ++j)
 		{
 			b[i*n + j] = a[i*n + j] * CONSTANT;
 		}
@@ -278,9 +283,9 @@ double matrixTransposeOMP(int n, vector<double> a, vector<double> b)
 {
 	auto start = clock();
 	#pragma omp parallel for
-	for (int i = 0; i < n; ++i)
+	for (long long i = 0; i < n; ++i)
 	{
-		for (int j = 0; j < n; ++j)
+		for (long long j = 0; j < n; ++j)
 		{
 			b[i*n + j] = a[j*n + i];
 		}
@@ -292,9 +297,9 @@ double matrixTransposeOMP(int n, vector<double> a, vector<double> b)
 double matrixTransposeSEQ(int n, vector<double> a, vector<double> b)
 {
 	auto start = clock();
-	for (int i = 0; i < n; ++i)
+	for (long long i = 0; i < n; ++i)
 	{
-		for (int j = 0; j < n; ++j)
+		for (long long j = 0; j < n; ++j)
 		{
 			b[i*n + j] = a[j*n + i];
 		}
@@ -329,11 +334,11 @@ double mulMatriciesOMP(int n, vector<double> a, vector<double> b, vector<double>
 {
 	auto start = clock();
 	#pragma omp parallel for
-	for (int i = 0; i < n; ++i)
+	for (long long i = 0; i < n; ++i)
 	{
-		for (int j = 0; j < n; ++j)
+		for (long long j = 0; j < n; ++j)
 		{
-			for (int k = 0; k < n; ++k)
+			for (long long k = 0; k < n; ++k)
 			{
 				c[i*n + j] += a[i*n + k] * b[k*n + j];
 			}
@@ -346,11 +351,11 @@ double mulMatriciesOMP(int n, vector<double> a, vector<double> b, vector<double>
 double mulMatriciesSEQ(int n, vector<double> a, vector<double> b, vector<double> c)
 {
 	auto start = clock();
-	for (int i = 0; i < n; ++i)
+	for (long long i = 0; i < n; ++i)
 	{
-		for (int j = 0; j < n; ++j)
+		for (long long j = 0; j < n; ++j)
 		{
-			for(int k = 0; k < n; ++k)
+			for(long long k = 0; k < n; ++k)
 			{
 				c[i*n + j] += a[i*n + k] * b[k*n + j];
 			}
@@ -360,11 +365,11 @@ double mulMatriciesSEQ(int n, vector<double> a, vector<double> b, vector<double>
 	return end - start;
 }
 
-vector<double> generateVector(int n, bool leaveEmpty)
+vector<double> generateVector(long long n, bool leaveEmpty)
 {
 	vector<double> vector(n);
 	if (leaveEmpty) return vector;
-	for (int i = 0;i < n;i++)
+	for (long long i = 0;i < n;i++)
 	{
 		int value = rand() % 100000;
 		vector[i] = value;
